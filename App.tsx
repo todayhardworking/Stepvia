@@ -827,7 +827,7 @@ export default function App() {
                                                             <StepItem
                                                                 step={step}
                                                                 onToggle={() => toggleStep(step.id)}
-                                                                onBreakDown={() => handleBreakDownStep(step.id)}
+                                                                onBreakDownStep={() => handleBreakDownStep(step.id)}
                                                                 onDelete={() => handleDeleteStep(step.id)}
                                                                 onVisualize={() => handleEnterFocusMode(step)}
                                                                 onToggleSubStep={(subId) => toggleSubStep(step.id, subId)}
