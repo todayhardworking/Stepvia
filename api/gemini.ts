@@ -279,7 +279,7 @@ export default async function handler(req, res) {
                     }
                 }
             });
-            result = JSON.parse(response.text() || "{}");
+            result = JSON.parse(response.text || "{}");
 
         } else {
             return res.status(400).json({ error: 'Invalid action' });
