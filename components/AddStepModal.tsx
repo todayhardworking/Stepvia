@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { Difficulty, Frequency, ActionStep } from '../types';
 
 interface AddStepModalProps {
-  onSave: (step: Omit<ActionStep, 'id' | 'isCompleted' | 'checkIns'>) => void;
-  onCancel: () => void;
+  onAdd: (step: Omit<ActionStep, 'id' | 'isCompleted' | 'checkIns'>) => void;
+  onClose: () => void;
 }
 
-export const AddStepModal: React.FC<AddStepModalProps> = ({ onSave, onCancel }) => {
+export const AddStepModal: React.FC<AddStepModalProps> = ({ onAdd, onClose }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [difficulty, setDifficulty] = useState<Difficulty>(Difficulty.EASY);
@@ -18,7 +18,7 @@ export const AddStepModal: React.FC<AddStepModalProps> = ({ onSave, onCancel }) 
     e.preventDefault();
     if (!title.trim() || !description.trim()) return;
 
-    onSave({
+    onAdd({
       title,
       description,
       difficulty,
@@ -26,6 +26,14 @@ export const AddStepModal: React.FC<AddStepModalProps> = ({ onSave, onCancel }) 
       estimatedTime: estimatedTime || '15 mins', // Default if empty
       deadline: deadline || undefined
     });
+
+    setTitle('');
+    setDescription('');
+    setDifficulty(Difficulty.EASY);
+    setFrequency(Frequency.ONCE);
+    setEstimatedTime('');
+    setDeadline('');
+    onClose();
   };
 
   return (
@@ -33,7 +41,7 @@ export const AddStepModal: React.FC<AddStepModalProps> = ({ onSave, onCancel }) 
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-scale-in">
         <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
           <h3 className="text-lg font-bold text-slate-800">Add Manual Action</h3>
-          <button onClick={onCancel} className="text-slate-400 hover:text-slate-600 transition-colors">
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
             <i className="fa-solid fa-xmark text-xl"></i>
           </button>
         </div>
@@ -117,7 +125,7 @@ export const AddStepModal: React.FC<AddStepModalProps> = ({ onSave, onCancel }) 
           <div className="pt-4 flex justify-end space-x-3">
             <button 
               type="button" 
-              onClick={onCancel}
+              onClick={onClose}
               className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium transition-colors text-sm"
             >
               Cancel
