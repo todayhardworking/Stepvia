@@ -20,3 +20,56 @@ ROLE: You are a Backend Specialist. You have READ-ONLY access to the Frontend.
 4. EXECUTION RULE:
    - Before applying any diff, verify: "Does this diff contain changes to .css, .html, or frontend .js files?"
    - If YES -> DELETE those changes immediately and apply only the backend logic.
+
+
+//========================================
+
+1) Environment variable rules (Vite)
+
+Anything VITE_* is PUBLIC. Never store secrets there.
+
+Never use define to inject env vars into client code.
+
+If it can run in the browser, assume attackers can read it.
+
+2) AI API rules
+
+No direct Gemini calls from React code.
+
+Always call serverless /api/* endpoints.
+
+Server endpoints must:
+
+require auth (Firebase ID token)
+
+enforce quotas/rate limits (at least basic)
+
+return only the minimum needed output
+
+3) Firebase data rules
+
+Firestore must be protected by strict rules (UID-based access).
+
+Optional but recommended: Firebase App Check to reduce abuse.
+
+4) Logging rules
+
+Never log:
+
+env vars
+
+Authorization headers
+
+tokens
+
+request bodies that might contain secrets
+
+In errors, return generic messages to client.
+
+5) Enforcement rules (must-have)
+
+Secret scanning in CI (gitleaks/trufflehog)
+
+Dist/build scanning (grep dist/ for key patterns)
+
+A code review rule: any new env var must be classified “public” or “server-only” before merging

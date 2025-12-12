@@ -56,23 +56,24 @@ Follow these steps to run Stepvia locally on your machine.
    cp .env.example .env
    ```
    
-   Fill in your API keys:
+   Fill in your API keys (See .env.example for full list):
    ```env
-   # Google Gemini AI
-   VITE_API_KEY=your_gemini_api_key
-
-   # Firebase Configuration
+   # Public (Client)
    VITE_FIREBASE_API_KEY=your_firebase_api_key
-   VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-   VITE_FIREBASE_PROJECT_ID=your_project_id
-   VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-   VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-   VITE_FIREBASE_APP_ID=your_app_id
+   # ... other public vars
+
+   # Server-Only (Vercel Env Vars - Set in Vercel Dashboard)
+   GEMINI_API_KEY=your_gemini_api_key
+   FIREBASE_PROJECT_ID=your_project_id
+   FIREBASE_CLIENT_EMAIL=your_client_email
+   FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n..."
    ```
 
 4. **Run the Development Server**
+   Because we use serverless functions, you must use Vercel CLI:
    ```bash
-   npm run dev
+   npm i -g vercel
+   vercel dev
    ```
    Open `http://localhost:3000` to view the app.
 
