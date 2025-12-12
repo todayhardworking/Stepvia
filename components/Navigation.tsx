@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { UserPreferences } from '../types';
 import { User } from 'firebase/auth';
-import { signInWithGoogle, logout } from '../services/authService';
+import { logout } from '../services/authService';
 
 interface NavigationProps {
   currentView: 'landing' | 'dashboard' | 'create' | 'detail' | 'daily' | 'preferences' | 'about';
@@ -9,9 +9,10 @@ interface NavigationProps {
   hasGoals: boolean;
   preferences: UserPreferences;
   user: User | null;
+  onOpenAuthModal: (view?: 'login' | 'signup' | 'forgot' | 'change') => void;
 }
 
-export const Navigation: React.FC<NavigationProps> = ({ currentView, setCurrentView, hasGoals, preferences, user }) => {
+export const Navigation: React.FC<NavigationProps> = ({ currentView, setCurrentView, hasGoals, preferences, user, onOpenAuthModal }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   // Close drawer when view changes
@@ -83,7 +84,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, setCurrentV
               <>
                 <button onClick={() => setCurrentView('about')} className="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white px-3 py-2 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">About</button>
                 <button
-                  onClick={signInWithGoogle}
+                  onClick={() => onOpenAuthModal('signup')}
                   id="nav-login-btn"
                   className="px-5 py-2.5 bg-indigo-600 text-white text-sm font-semibold rounded-full hover:bg-indigo-700 transition-all shadow-sm hover:shadow-md active:scale-95"
                 >
@@ -146,7 +147,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, setCurrentV
               )
             ) : (
               <button
-                onClick={signInWithGoogle}
+                onClick={() => onOpenAuthModal('login')}
                 className="px-4 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-full shadow-sm active:scale-95 transition-transform"
               >
                 Login
@@ -192,7 +193,7 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, setCurrentV
                 <h4 className="font-bold text-indigo-900 dark:text-indigo-300 mb-1">Ready to start?</h4>
                 <p className="text-xs text-indigo-700 dark:text-indigo-400 mb-3">Break down your goals today.</p>
                 <button
-                  onClick={signInWithGoogle}
+                  onClick={() => onOpenAuthModal('signup')}
                   className="w-full py-2 bg-indigo-600 text-white text-sm font-semibold rounded-lg shadow-sm active:scale-95 transition-transform"
                 >
                   Get Started
@@ -255,6 +256,13 @@ export const Navigation: React.FC<NavigationProps> = ({ currentView, setCurrentV
             >
               <i className="fa-solid fa-right-from-bracket w-6 text-center mr-3"></i>
               Logout
+            </button>
+            <button
+              onClick={() => onOpenAuthModal('change')}
+              className="flex items-center w-full px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors mt-2"
+            >
+              <i className="fa-solid fa-key w-6 text-center mr-3"></i>
+              Change Password
             </button>
           </div>
         )}

@@ -16,6 +16,7 @@ import { AboutPage } from './components/AboutPage';
 import { AddStepModal } from './components/AddStepModal';
 import { FocusMode } from './components/FocusMode';
 import { generateMoreSteps, generateSubSteps } from './services/geminiService';
+import { AuthModal } from './components/AuthModal';
 
 // Helper to get local YYYY-MM-DD string to ensure resets happen at local midnight
 const getLocalDate = () => {
@@ -107,6 +108,8 @@ export default function App() {
     const [isGeneratingMore, setIsGeneratingMore] = useState(false);
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
     const [isAddStepModalOpen, setIsAddStepModalOpen] = useState(false);
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+    const [authModalView, setAuthModalView] = useState<'login' | 'signup' | 'forgot' | 'change'>('login');
 
     // Focus Mode State
     const [activeFocusStep, setActiveFocusStep] = useState<ActionStep | null>(null);
@@ -203,6 +206,11 @@ export default function App() {
         if (confirm("This would clear local data, but your data is now in the cloud. Contact support to reset account.")) {
             // no-op
         }
+    };
+
+    const openAuthModal = (view: 'login' | 'signup' | 'forgot' | 'change' = 'login') => {
+        setAuthModalView(view);
+        setIsAuthModalOpen(true);
     };
 
     const handlePlanGenerated = async (title: string, motivation: string, deadline: string, steps: ActionStep[]) => {
@@ -589,6 +597,7 @@ export default function App() {
                 hasGoals={goals.length > 0 /* Use total goals to decide auth state/menu */}
                 preferences={preferences}
                 user={user}
+                onOpenAuthModal={openAuthModal}
             />
 
             {currentView === 'landing' && (
@@ -596,15 +605,7 @@ export default function App() {
                     if (user) {
                         setCurrentView('dashboard');
                     } else {
-                        // If not logged in, user will use Navigation login or just browse landing
-                        // Actually, Navigation handles the login trigger.
-                        // We can make this button trigger login too if implemented, 
-                        // but for now let's just let it direct to login flow via Nav or internal handle.
-                        // Or better, pass a dummy function that opens auth IF we wanted to implement it here.
-                        // Navigation component is the primary Auth trigger now.
-                        const loginBtn = document.getElementById('nav-login-btn');
-                        if (loginBtn) loginBtn.click();
-                        else alert("Please click Login in the top right!");
+                        openAuthModal('signup');
                     }
                 }} />
             )}
@@ -898,6 +899,14 @@ export default function App() {
                     )}
                 </main>
             )}
+
+            <AuthModal
+                isOpen={isAuthModalOpen}
+                onClose={() => setIsAuthModalOpen(false)}
+                defaultView={authModalView}
+                onAuthSuccess={() => setCurrentView('dashboard')}
+                user={user}
+            />
         </div>
     );
 }
