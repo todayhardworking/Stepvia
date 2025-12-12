@@ -211,6 +211,23 @@ export default function App() {
         setIsAuthModalOpen(true);
     };
 
+    const normalizeStep = (step: any): ActionStep => ({
+        id: step.id || Math.random().toString(36).substring(2, 9),
+        title: step.title,
+        description: step.description,
+        estimatedTime: step.estimatedTime || '30 mins',
+        difficulty: step.difficulty || Difficulty.MEDIUM,
+        frequency: step.frequency || Frequency.ONCE,
+        isCompleted: step.isCompleted ?? false,
+        checkIns: step.checkIns ?? [],
+        deadline: step.deadline,
+        subSteps: (step.subSteps || []).map((sub: any) => ({
+            id: sub.id || Math.random().toString(36).substring(2, 9),
+            title: sub.title,
+            isCompleted: sub.isCompleted ?? false
+        }))
+    });
+
     const handlePlanGenerated = async (title: string, motivation: string, deadline: string, steps: ActionStep[]) => {
         if (!user) return;
 
@@ -222,7 +239,7 @@ export default function App() {
             createdAt: new Date().toISOString(),
             status: GoalStatus.NOT_STARTED,
             progress: 0,
-            steps,
+            steps: steps.map(normalizeStep),
             archived: false
         };
 
@@ -328,10 +345,15 @@ export default function App() {
 
         try {
             const subSteps = await generateSubSteps(step.title, step.description, goal.title, preferences.aiPersona);
+            const normalizedSubSteps = subSteps.map(sub => ({
+                id: sub.id || Math.random().toString(36).substring(2, 9),
+                title: sub.title,
+                isCompleted: sub.isCompleted ?? false
+            }));
 
             const updatedSteps = goal.steps.map(s => {
                 if (s.id !== stepId) return s;
-                return { ...s, subSteps };
+                return { ...s, subSteps: normalizedSubSteps };
             });
 
             const updatedGoal = { ...goal, steps: updatedSteps };
@@ -419,8 +441,9 @@ export default function App() {
         setIsGeneratingMore(true);
         try {
             const newSteps = await generateMoreSteps(goal.title, goal.motivation, goal.steps, preferences.aiPersona);
+            const normalizedNewSteps = newSteps.map(normalizeStep);
 
-            const updatedSteps = [...goal.steps, ...newSteps];
+            const updatedSteps = [...goal.steps, ...normalizedNewSteps];
             const updatedGoal = {
                 ...goal,
                 steps: updatedSteps,
