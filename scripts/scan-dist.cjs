@@ -1,13 +1,19 @@
+require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 
 const DIST_DIR = path.join(__dirname, '../dist');
 const SECRET_patterns = [
-    /AIza[0-9A-Za-z-_]{35}/, // Google API Key format
+    /AIza[0-9A-Za-z-_]{35}/g, // Google API Key format (Global flag to catch all)
     /GEMINI_API_KEY/,        // Env var name
     /process\.env\.GEMINI/,  // Env injection
     /firebase-admin/,        // Server-side lib leakage
 ];
+
+// Whitelist the public Firebase Key
+const ALLOWED_KEYS = [
+    process.env.VITE_FIREBASE_API_KEY
+].filter(Boolean);
 
 function scanDirectory(dir) {
     if (!fs.existsSync(dir)) {
@@ -28,9 +34,18 @@ function scanDirectory(dir) {
             const content = fs.readFileSync(filePath, 'utf8');
 
             for (const pattern of SECRET_patterns) {
-                if (pattern.test(content)) {
-                    console.error(`UNKNOWN SECRET PATTERN FOUND in ${filePath}: ${pattern}`);
-                    errorFound = true;
+                const matches = content.match(pattern);
+                if (matches) {
+                    for (const match of matches) {
+                        // Check if the match is whitelisted
+                        if (ALLOWED_KEYS.includes(match)) {
+                            console.log(`Ignoring allowed public key in ${path.basename(filePath)}`);
+                            continue;
+                        }
+
+                        console.error(`UNKNOWN SECRET PATTERN FOUND in ${filePath}: ${match}`);
+                        errorFound = true;
+                    }
                 }
             }
         }
