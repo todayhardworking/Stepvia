@@ -35,8 +35,13 @@ export const StepItem: React.FC<StepItemProps> = ({
   canMoveDown
 }) => {
   const [isEditingDate, setIsEditingDate] = useState(false);
+  const [tempDeadline, setTempDeadline] = useState(step.deadline || '');
   const [isExpanding, setIsExpanding] = useState(false);
   const dateInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setTempDeadline(step.deadline || '');
+  }, [step.deadline]);
 
   useEffect(() => {
     if (isEditingDate && dateInputRef.current) {
@@ -112,12 +117,19 @@ export const StepItem: React.FC<StepItemProps> = ({
       return `${year}-${month}-${day}`;
   };
 
-  const formattedDeadline = step.deadline 
+  const formattedDeadline = step.deadline
     ? new Date(step.deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
     : null;
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      onDeadlineChange(step.id, e.target.value);
+      setTempDeadline(e.target.value);
+  };
+
+  const handleDeadlineSave = () => {
+      if (tempDeadline !== step.deadline) {
+          onDeadlineChange(step.id, tempDeadline);
+      }
+      setIsEditingDate(false);
   };
 
   const handleBreakDown = async (e: React.MouseEvent) => {
@@ -267,18 +279,26 @@ export const StepItem: React.FC<StepItemProps> = ({
                 
                 <div className="flex items-center space-x-2 shrink-0">
                     {isEditingDate ? (
-                        <input
-                            ref={dateInputRef}
-                            type="date"
-                            value={step.deadline || ''}
-                            onChange={handleDateChange}
-                            onBlur={() => setIsEditingDate(false)}
-                            onClick={(e) => e.stopPropagation()}
-                            onDragStart={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                            className="text-xs px-2 py-0.5 rounded border border-indigo-300 bg-white dark:bg-slate-700 text-slate-800 dark:text-white outline-none focus:ring-1 focus:ring-indigo-500 w-28"
-                        />
+                        <div className="flex items-center space-x-1">
+                            <input
+                                ref={dateInputRef}
+                                type="date"
+                                value={tempDeadline}
+                                onChange={handleDateChange}
+                                onBlur={handleDeadlineSave}
+                                onClick={(e) => e.stopPropagation()}
+                                onDragStart={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                                className="text-xs px-2 py-0.5 rounded border border-indigo-300 bg-white dark:bg-slate-700 text-slate-800 dark:text-white outline-none focus:ring-1 focus:ring-indigo-500 w-28"
+                            />
+                            <button
+                                onClick={(e) => { e.stopPropagation(); handleDeadlineSave(); }}
+                                className="text-[11px] px-2 py-1 rounded border border-indigo-300 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-colors"
+                            >
+                                Set
+                            </button>
+                        </div>
                     ) : (
-                        <button 
+                        <button
                             onClick={(e) => {
                                 e.stopPropagation();
                                 setIsEditingDate(true);
