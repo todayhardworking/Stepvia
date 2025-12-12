@@ -25,9 +25,6 @@ export const DailyCheckinPage: React.FC<DailyCheckinPageProps> = ({
     steps: goal.steps.filter(step => step.frequency === Frequency.DAILY)
   })).filter(goal => goal.steps.length > 0);
 
-  // No-op for drag handlers since we don't reorder here
-  const noOp = () => {};
-
   return (
     <div className="animate-fade-in max-w-3xl mx-auto">
       <div className="mb-8 text-center">
@@ -58,7 +55,7 @@ export const DailyCheckinPage: React.FC<DailyCheckinPageProps> = ({
                     </div>
                     <div className="p-4 sm:p-6">
                         {goal.steps.map((step, index) => (
-                            <StepItem
+                                <StepItem
                                 key={step.id}
                                 step={step}
                                 index={index}
@@ -67,11 +64,6 @@ export const DailyCheckinPage: React.FC<DailyCheckinPageProps> = ({
                                 onDeadlineChange={(stepId, date) => onDeadlineChange(goal.id, stepId, date)}
                                 onBreakDownStep={(stepId) => onBreakDownStep(goal.id, stepId)}
                                 onToggleSubStep={(stepId, subStepId) => onToggleSubStep(goal.id, stepId, subStepId)}
-                                // Disable dragging in this view
-                                onDragStart={noOp}
-                                onDragEnter={noOp}
-                                onDragOver={noOp}
-                                onDragEnd={noOp}
                             />
                         ))}
                     </div>
