@@ -830,7 +830,7 @@ export default function App() {
                                                                 onBreakDownStep={() => handleBreakDownStep(step.id)}
                                                                 onDelete={() => handleDeleteStep(step.id)}
                                                                 onVisualize={() => handleEnterFocusMode(step)}
-                                                                onToggleSubStep={(subId) => toggleSubStep(step.id, subId)}
+                                                                onToggleSubStep={(sId, subId) => toggleSubStep(sId, subId)}
                                                                 onEditDeadline={(date) => handleStepDeadlineChange(step.id, date)}
                                                                 draggableProps={{
                                                                     draggable: true,
