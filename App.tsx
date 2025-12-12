@@ -880,7 +880,6 @@ export default function App() {
 
                             {isAddStepModalOpen && (
                                 <AddStepModal
-                                    isOpen={isAddStepModalOpen}
                                     onClose={() => setIsAddStepModalOpen(false)}
                                     onAdd={handleManualAddStep}
                                 />
