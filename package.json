@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && npm run security:scan",
-    "security:scan": "node scripts/scan-dist.js",
+    "security:scan": "node scripts/scan-dist.cjs",
     "preview": "vite preview"
   },
   "dependencies": {
