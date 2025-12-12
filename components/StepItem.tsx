@@ -7,13 +7,15 @@ interface StepItemProps {
   onToggle: (id: string) => void;
   onDelete: (id: string) => void;
   onDeadlineChange: (id: string, newDate: string) => void;
-  onDragStart: (e: React.DragEvent<HTMLDivElement>, index: number) => void;
-  onDragEnter: (e: React.DragEvent<HTMLDivElement>, index: number) => void;
-  onDragEnd: (e: React.DragEvent<HTMLDivElement>) => void;
-  onDragOver: (e: React.DragEvent<HTMLDivElement>, index: number) => void;
   onEnterFocusMode?: (step: ActionStep) => void;
   onBreakDownStep?: (id: string) => Promise<void>;
   onToggleSubStep?: (stepId: string, subStepId: string) => void;
+  onMoveToTop?: (index: number) => void;
+  onMoveUp?: (index: number) => void;
+  onMoveDown?: (index: number) => void;
+  onMoveToBottom?: (index: number) => void;
+  canMoveUp?: boolean;
+  canMoveDown?: boolean;
 }
 
 export const StepItem: React.FC<StepItemProps> = ({ 
@@ -22,16 +24,17 @@ export const StepItem: React.FC<StepItemProps> = ({
   onToggle, 
   onDelete, 
   onDeadlineChange,
-  onDragStart,
-  onDragEnter,
-  onDragEnd,
-  onDragOver,
   onEnterFocusMode,
   onBreakDownStep,
-  onToggleSubStep
+  onToggleSubStep,
+  onMoveToTop,
+  onMoveUp,
+  onMoveDown,
+  onMoveToBottom,
+  canMoveUp,
+  canMoveDown
 }) => {
   const [isEditingDate, setIsEditingDate] = useState(false);
-  const [isDraggable, setIsDraggable] = useState(false);
   const [isExpanding, setIsExpanding] = useState(false);
   const dateInputRef = useRef<HTMLInputElement>(null);
 
@@ -181,26 +184,49 @@ export const StepItem: React.FC<StepItemProps> = ({
   const titleDecoration = isSatisfiedForPeriod && !isRecurring ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-white';
   const hasSubSteps = step.subSteps && step.subSteps.length > 0;
 
+  const showReorderControls = onMoveToTop || onMoveUp || onMoveDown || onMoveToBottom;
+
   return (
-    <div 
+    <div
         className={`flex flex-col p-4 mb-3 rounded-lg border transition-all duration-300 group relative ${rowBg} border-slate-200 dark:border-slate-700 shadow-sm hover:border-indigo-300 dark:hover:border-indigo-700 ${rowOpacity}`}
-        draggable={isDraggable}
-        onDragStart={(e) => onDragStart(e, index)}
-        onDragEnter={(e) => onDragEnter(e, index)}
-        onDragOver={(e) => onDragOver(e, index)}
-        onDragEnd={onDragEnd}
     >
       <div className="flex items-start">
-          {/* Drag Handle */}
-          <div 
-            className="pt-2 mr-3 text-slate-300 dark:text-slate-600 hover:text-slate-500 dark:hover:text-slate-400 cursor-grab active:cursor-grabbing" 
-            title="Drag to reorder"
-            onMouseEnter={() => setIsDraggable(true)}
-            onMouseLeave={() => setIsDraggable(false)}
-            onTouchStart={() => setIsDraggable(true)}
-          >
-            <i className="fa-solid fa-grip-vertical"></i>
-          </div>
+          {showReorderControls && (
+            <div className="pt-1 mr-3 flex flex-col gap-1 text-slate-300 dark:text-slate-500">
+              <button
+                onClick={(e) => { e.stopPropagation(); onMoveToTop && onMoveToTop(index); }}
+                disabled={!canMoveUp}
+                className={`w-8 h-8 flex items-center justify-center rounded-md border border-transparent hover:border-indigo-200 dark:hover:border-indigo-700 transition-colors ${!canMoveUp ? 'opacity-40 cursor-not-allowed' : 'hover:text-indigo-500 dark:hover:text-indigo-400'}`}
+                title="Move to top"
+              >
+                <i className="fa-solid fa-angles-up"></i>
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); onMoveUp && onMoveUp(index); }}
+                disabled={!canMoveUp}
+                className={`w-8 h-8 flex items-center justify-center rounded-md border border-transparent hover:border-indigo-200 dark:hover:border-indigo-700 transition-colors ${!canMoveUp ? 'opacity-40 cursor-not-allowed' : 'hover:text-indigo-500 dark:hover:text-indigo-400'}`}
+                title="Move up"
+              >
+                <i className="fa-solid fa-arrow-up"></i>
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); onMoveDown && onMoveDown(index); }}
+                disabled={!canMoveDown}
+                className={`w-8 h-8 flex items-center justify-center rounded-md border border-transparent hover:border-indigo-200 dark:hover:border-indigo-700 transition-colors ${!canMoveDown ? 'opacity-40 cursor-not-allowed' : 'hover:text-indigo-500 dark:hover:text-indigo-400'}`}
+                title="Move down"
+              >
+                <i className="fa-solid fa-arrow-down"></i>
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); onMoveToBottom && onMoveToBottom(index); }}
+                disabled={!canMoveDown}
+                className={`w-8 h-8 flex items-center justify-center rounded-md border border-transparent hover:border-indigo-200 dark:hover:border-indigo-700 transition-colors ${!canMoveDown ? 'opacity-40 cursor-not-allowed' : 'hover:text-indigo-500 dark:hover:text-indigo-400'}`}
+                title="Move to bottom"
+              >
+                <i className="fa-solid fa-angles-down"></i>
+              </button>
+            </div>
+          )}
 
           <div className="pt-1 mr-4">
             <button 
