@@ -99,12 +99,25 @@ export const generateMoreSteps = async (goal: string, motivation: string, existi
   }
 };
 
+const generateClientId = () => {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return Math.random().toString(36).slice(2, 10);
+};
+
 export const generateSubSteps = async (stepTitle: string, stepDescription: string, goalTitle: string, persona: AIPersona): Promise<SubStep[]> => {
   try {
     const systemInstruction = getSystemInstruction(persona);
-    return await callGeminiApi('generateSubSteps', {
+    const response = await callGeminiApi('generateSubSteps', {
       goalTitle, stepTitle, stepDescription, systemInstruction
     });
+
+    return (response as Array<Partial<SubStep> & { title?: string }>).map((sub, index) => ({
+      id: sub.id || generateClientId(),
+      title: sub.title || `Step ${index + 1}`,
+      isCompleted: sub.isCompleted ?? false,
+    }));
   } catch (error) {
     console.error("Error generating sub-steps:", error);
     throw new Error("Failed to break down the task.");
