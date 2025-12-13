@@ -197,6 +197,7 @@ export const StepItem: React.FC<StepItemProps> = ({
   const hasSubSteps = step.subSteps && step.subSteps.length > 0;
 
   const showReorderControls = onMoveToTop || onMoveUp || onMoveDown || onMoveToBottom;
+  const reorderButtonBaseClasses = 'w-8 h-8 flex items-center justify-center rounded-md border border-transparent hover:border-indigo-200 dark:hover:border-indigo-700 transition-colors';
 
   return (
     <div
@@ -204,11 +205,11 @@ export const StepItem: React.FC<StepItemProps> = ({
     >
       <div className="flex items-start">
           {showReorderControls && (
-            <div className="pt-1 mr-3 flex flex-col gap-1 text-slate-300 dark:text-slate-500">
+            <div className="hidden sm:flex pt-1 mr-3 flex-col gap-1 text-slate-300 dark:text-slate-500">
               <button
                 onClick={(e) => { e.stopPropagation(); onMoveToTop && onMoveToTop(index); }}
                 disabled={!canMoveUp}
-                className={`w-8 h-8 flex items-center justify-center rounded-md border border-transparent hover:border-indigo-200 dark:hover:border-indigo-700 transition-colors ${!canMoveUp ? 'opacity-40 cursor-not-allowed' : 'hover:text-indigo-500 dark:hover:text-indigo-400'}`}
+                className={`${reorderButtonBaseClasses} ${!canMoveUp ? 'opacity-40 cursor-not-allowed' : 'hover:text-indigo-500 dark:hover:text-indigo-400'}`}
                 title="Move to top"
               >
                 <i className="fa-solid fa-angles-up"></i>
@@ -216,7 +217,7 @@ export const StepItem: React.FC<StepItemProps> = ({
               <button
                 onClick={(e) => { e.stopPropagation(); onMoveUp && onMoveUp(index); }}
                 disabled={!canMoveUp}
-                className={`w-8 h-8 flex items-center justify-center rounded-md border border-transparent hover:border-indigo-200 dark:hover:border-indigo-700 transition-colors ${!canMoveUp ? 'opacity-40 cursor-not-allowed' : 'hover:text-indigo-500 dark:hover:text-indigo-400'}`}
+                className={`${reorderButtonBaseClasses} ${!canMoveUp ? 'opacity-40 cursor-not-allowed' : 'hover:text-indigo-500 dark:hover:text-indigo-400'}`}
                 title="Move up"
               >
                 <i className="fa-solid fa-arrow-up"></i>
@@ -224,7 +225,7 @@ export const StepItem: React.FC<StepItemProps> = ({
               <button
                 onClick={(e) => { e.stopPropagation(); onMoveDown && onMoveDown(index); }}
                 disabled={!canMoveDown}
-                className={`w-8 h-8 flex items-center justify-center rounded-md border border-transparent hover:border-indigo-200 dark:hover:border-indigo-700 transition-colors ${!canMoveDown ? 'opacity-40 cursor-not-allowed' : 'hover:text-indigo-500 dark:hover:text-indigo-400'}`}
+                className={`${reorderButtonBaseClasses} ${!canMoveDown ? 'opacity-40 cursor-not-allowed' : 'hover:text-indigo-500 dark:hover:text-indigo-400'}`}
                 title="Move down"
               >
                 <i className="fa-solid fa-arrow-down"></i>
@@ -232,7 +233,7 @@ export const StepItem: React.FC<StepItemProps> = ({
               <button
                 onClick={(e) => { e.stopPropagation(); onMoveToBottom && onMoveToBottom(index); }}
                 disabled={!canMoveDown}
-                className={`w-8 h-8 flex items-center justify-center rounded-md border border-transparent hover:border-indigo-200 dark:hover:border-indigo-700 transition-colors ${!canMoveDown ? 'opacity-40 cursor-not-allowed' : 'hover:text-indigo-500 dark:hover:text-indigo-400'}`}
+                className={`${reorderButtonBaseClasses} ${!canMoveDown ? 'opacity-40 cursor-not-allowed' : 'hover:text-indigo-500 dark:hover:text-indigo-400'}`}
                 title="Move to bottom"
               >
                 <i className="fa-solid fa-angles-down"></i>
@@ -277,7 +278,45 @@ export const StepItem: React.FC<StepItemProps> = ({
                     </div>
                 </div>
                 
-                <div className="flex items-center space-x-2 shrink-0">
+                <div className="flex flex-col items-end gap-2">
+                    {showReorderControls && (
+                        <div className="flex items-center gap-1 text-slate-300 dark:text-slate-500 sm:hidden">
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onMoveToTop && onMoveToTop(index); }}
+                                disabled={!canMoveUp}
+                                className={`${reorderButtonBaseClasses} ${!canMoveUp ? 'opacity-40 cursor-not-allowed' : 'hover:text-indigo-500 dark:hover:text-indigo-400'}`}
+                                title="Move to top"
+                            >
+                                <i className="fa-solid fa-angles-up"></i>
+                            </button>
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onMoveUp && onMoveUp(index); }}
+                                disabled={!canMoveUp}
+                                className={`${reorderButtonBaseClasses} ${!canMoveUp ? 'opacity-40 cursor-not-allowed' : 'hover:text-indigo-500 dark:hover:text-indigo-400'}`}
+                                title="Move up"
+                            >
+                                <i className="fa-solid fa-arrow-up"></i>
+                            </button>
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onMoveDown && onMoveDown(index); }}
+                                disabled={!canMoveDown}
+                                className={`${reorderButtonBaseClasses} ${!canMoveDown ? 'opacity-40 cursor-not-allowed' : 'hover:text-indigo-500 dark:hover:text-indigo-400'}`}
+                                title="Move down"
+                            >
+                                <i className="fa-solid fa-arrow-down"></i>
+                            </button>
+                            <button
+                                onClick={(e) => { e.stopPropagation(); onMoveToBottom && onMoveToBottom(index); }}
+                                disabled={!canMoveDown}
+                                className={`${reorderButtonBaseClasses} ${!canMoveDown ? 'opacity-40 cursor-not-allowed' : 'hover:text-indigo-500 dark:hover:text-indigo-400'}`}
+                                title="Move to bottom"
+                            >
+                                <i className="fa-solid fa-angles-down"></i>
+                            </button>
+                        </div>
+                    )}
+
+                    <div className="flex items-center gap-2 shrink-0">
                     {isEditingDate ? (
                         <div className="flex items-center space-x-1">
                             <input
@@ -315,9 +354,10 @@ export const StepItem: React.FC<StepItemProps> = ({
                     <span className={`text-xs px-2 py-0.5 rounded border ${getDifficultyColor(step.difficulty)}`}>
                         {step.difficulty}
                     </span>
+                    </div>
                 </div>
             </div>
-            
+
             <p className={`text-sm mt-1 ${isSatisfiedForPeriod ? 'text-slate-400 dark:text-slate-500' : 'text-slate-600 dark:text-slate-300'}`}>
                 {step.description}
             </p>
