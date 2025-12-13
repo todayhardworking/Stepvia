@@ -1,20 +1,19 @@
 import { GoogleGenAI, Type } from "@google/genai";
-import * as admin from 'firebase-admin';
+import { cert, getApps, initializeApp } from 'firebase-admin/app';
+import { getAuth } from 'firebase-admin/auth';
 
 // Initialize Firebase Admin if not already initialized
-if (!admin.apps.length) {
-    try {
-        admin.initializeApp({
-            credential: admin.credential.cert({
-                projectId: process.env.FIREBASE_PROJECT_ID,
-                clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-                privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-            }),
-        });
-    } catch (error) {
-        console.error('Firebase Admin initialization error:', error);
-    }
-}
+const firebaseApp = getApps().length
+    ? getApps()[0]
+    : initializeApp({
+        credential: cert({
+            projectId: process.env.FIREBASE_PROJECT_ID,
+            clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+            privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+        }),
+    });
+
+const auth = getAuth(firebaseApp);
 
 export default async function handler(req, res) {
     // 1. Method check
@@ -30,7 +29,7 @@ export default async function handler(req, res) {
 
     const idToken = authHeader.split('Bearer ')[1];
     try {
-        await admin.auth().verifyIdToken(idToken);
+        await auth.verifyIdToken(idToken);
     } catch (error) {
         console.error('Token verification failed:', error);
         return res.status(401).json({ error: 'Unauthorized: Invalid token' });
