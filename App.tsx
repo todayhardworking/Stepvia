@@ -3,7 +3,7 @@ import { PieChart, Pie, Cell, Tooltip as RechartsTooltip, ResponsiveContainer } 
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { auth } from './firebaseConfig';
 import { subscribeToGoals, addGoal, updateGoal, deleteGoal, getUserPreferences, updateUserPreferences } from './services/firestoreService';
-import { Goal, ActionStep, GoalStatus, Frequency, UserPreferences, AIPersona, Difficulty, ReviewResponse } from './types';
+import { Goal, ActionStep, GoalStatus, Frequency, UserPreferences, AIPersona, Difficulty, ReviewResponse, SubStep } from './types';
 import { GoalCard } from './components/GoalCard';
 import { StepItem } from './components/StepItem';
 import { CreateGoal } from './components/CreateGoal';
@@ -78,6 +78,18 @@ const determineStatus = (steps: ActionStep[]): GoalStatus => {
     return GoalStatus.NOT_STARTED;
 };
 
+const normalizeSubSteps = (stepId: string, subSteps: SubStep[] = []): SubStep[] => {
+    return subSteps.map((sub, index) => ({
+        ...sub,
+        id: sub.id || `${stepId}-sub-${index}`,
+        isCompleted: sub.isCompleted ?? false
+    }));
+};
+
+const normalizeSteps = (steps: ActionStep[]): ActionStep[] => {
+    return steps.map(step => step.subSteps ? { ...step, subSteps: normalizeSubSteps(step.id, step.subSteps) } : step);
+};
+
 // Helper for XP calculation
 const getXpForDifficulty = (difficulty: Difficulty): number => {
     switch (difficulty) {
@@ -141,7 +153,11 @@ export default function App() {
         if (!user) return;
 
         const unsubscribe = subscribeToGoals(user.uid, (fetchedGoals) => {
-            setGoals(fetchedGoals);
+            const normalizedGoals = fetchedGoals.map(goal => ({
+                ...goal,
+                steps: normalizeSteps(goal.steps)
+            }));
+            setGoals(normalizedGoals);
         });
         return () => unsubscribe();
     }, [user]);
@@ -304,7 +320,8 @@ export default function App() {
             if (step.id !== stepId) return step;
             if (!step.subSteps) return step;
 
-            const updatedSubSteps = step.subSteps.map(sub =>
+            const normalizedSubSteps = normalizeSubSteps(step.id, step.subSteps);
+            const updatedSubSteps = normalizedSubSteps.map(sub =>
                 sub.id === subStepId ? { ...sub, isCompleted: !sub.isCompleted } : sub
             );
 
@@ -328,10 +345,11 @@ export default function App() {
 
         try {
             const subSteps = await generateSubSteps(step.title, step.description, goal.title, preferences.aiPersona);
+            const normalizedSubSteps = normalizeSubSteps(stepId, subSteps);
 
             const updatedSteps = goal.steps.map(s => {
                 if (s.id !== stepId) return s;
-                return { ...s, subSteps };
+                return { ...s, subSteps: normalizedSubSteps };
             });
 
             const updatedGoal = { ...goal, steps: updatedSteps };
