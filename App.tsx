@@ -78,6 +78,8 @@ const determineStatus = (steps: ActionStep[]): GoalStatus => {
     return GoalStatus.NOT_STARTED;
 };
 
+const generateStepId = () => Math.random().toString(36).substring(2, 9);
+
 const normalizeSubSteps = (stepId: string, subSteps: SubStep[] = []): SubStep[] => {
     return subSteps.map((sub, index) => ({
         ...sub,
@@ -87,7 +89,11 @@ const normalizeSubSteps = (stepId: string, subSteps: SubStep[] = []): SubStep[] 
 };
 
 const normalizeSteps = (steps: ActionStep[]): ActionStep[] => {
-    return steps.map(step => step.subSteps ? { ...step, subSteps: normalizeSubSteps(step.id, step.subSteps) } : step);
+    return steps.map((step, index) => {
+        const safeId = step.id || `${generateStepId()}-${index}`;
+        const normalizedSubSteps = step.subSteps ? normalizeSubSteps(safeId, step.subSteps) : step.subSteps;
+        return { ...step, id: safeId, subSteps: normalizedSubSteps };
+    });
 };
 
 // Helper for XP calculation
@@ -230,6 +236,8 @@ export default function App() {
     const handlePlanGenerated = async (title: string, motivation: string, deadline: string, steps: ActionStep[]) => {
         if (!user) return;
 
+        const normalizedSteps = normalizeSteps(steps);
+
         const newGoal: Goal = {
             id: Math.random().toString(36).substring(2, 9),
             title,
@@ -238,7 +246,7 @@ export default function App() {
             createdAt: new Date().toISOString(),
             status: GoalStatus.NOT_STARTED,
             progress: 0,
-            steps,
+            steps: normalizedSteps,
             archived: false
         };
 
@@ -437,8 +445,9 @@ export default function App() {
         setIsGeneratingMore(true);
         try {
             const newSteps = await generateMoreSteps(goal.title, goal.motivation, goal.steps, preferences.aiPersona);
+            const normalizedNewSteps = normalizeSteps(newSteps);
 
-            const updatedSteps = [...goal.steps, ...newSteps];
+            const updatedSteps = [...goal.steps, ...normalizedNewSteps];
             const updatedGoal = {
                 ...goal,
                 steps: updatedSteps,
