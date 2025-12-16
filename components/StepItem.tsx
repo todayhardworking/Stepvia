@@ -446,17 +446,19 @@ export const StepItem: React.FC<StepItemProps> = ({
           <div className="ml-12 mt-2 pt-2 border-t border-slate-100 dark:border-slate-700/50 animate-fade-in">
               <p className="text-[10px] uppercase font-bold text-slate-400 mb-2">Micro-Steps</p>
               <div className="space-y-2">
-                  {step.subSteps!.map(sub => (
-                      <div 
-                        key={sub.id} 
+                  {step.subSteps!.map((sub, subIndex) => {
+                    const subId = sub.id || `${step.id}-sub-${subIndex}`;
+                    return (
+                      <div
+                        key={subId}
                         className="flex items-center group/sub"
                         onClick={(e) => e.stopPropagation()} // Prevent parent click
                       >
                           <button
-                            onClick={() => onToggleSubStep && onToggleSubStep(step.id, sub.id)}
+                            onClick={() => onToggleSubStep && onToggleSubStep(step.id, subId)}
                             className={`w-4 h-4 rounded border flex items-center justify-center mr-3 transition-colors
-                                ${sub.isCompleted 
-                                    ? 'bg-purple-500 border-purple-500 text-white' 
+                                ${sub.isCompleted
+                                    ? 'bg-purple-500 border-purple-500 text-white'
                                     : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 hover:border-purple-400'}`}
                           >
                               {sub.isCompleted && <i className="fa-solid fa-check text-[10px]"></i>}
@@ -465,7 +467,8 @@ export const StepItem: React.FC<StepItemProps> = ({
                               {sub.title}
                           </span>
                       </div>
-                  ))}
+                  );
+                  })}
               </div>
           </div>
       )}
