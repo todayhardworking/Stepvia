@@ -38,59 +38,59 @@ export const AddStepModal: React.FC<AddStepModalProps> = ({ onAdd, onClose }) =>
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-scale-in">
-        <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-          <h3 className="text-lg font-bold text-slate-800">Add Manual Action</h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors">
+      <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden animate-scale-in">
+        <div className="px-6 py-4 border-b border-slate-100 dark:border-slate-700 flex justify-between items-center bg-slate-50 dark:bg-slate-800/80">
+          <h3 className="text-lg font-bold text-slate-800 dark:text-white">Add Manual Action</h3>
+          <button onClick={onClose} className="text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-300 transition-colors">
             <i className="fa-solid fa-xmark text-xl"></i>
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1">Title</label>
-            <input 
-              type="text" 
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">Title</label>
+            <input
+              type="text"
               required
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g., Read Chapter 1"
-              className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all text-sm"
+              className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 outline-none transition-all text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1">Description</label>
-            <textarea 
+            <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">Description</label>
+            <textarea
               required
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Brief details on how to complete this step..."
               rows={2}
-              className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all text-sm resize-none"
+              className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 outline-none transition-all text-sm resize-none placeholder:text-slate-400 dark:placeholder:text-slate-500"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1">Frequency</label>
-              <select 
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">Frequency</label>
+              <select
                 value={frequency}
                 onChange={(e) => setFrequency(e.target.value as Frequency)}
-                className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all text-sm bg-white"
+                className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 outline-none transition-all text-sm"
               >
                 {Object.values(Frequency).map(f => (
                   <option key={f} value={f}>{f}</option>
                 ))}
               </select>
             </div>
-            
+
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1">Difficulty</label>
-              <select 
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">Difficulty</label>
+              <select
                 value={difficulty}
                 onChange={(e) => setDifficulty(e.target.value as Difficulty)}
-                className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all text-sm bg-white"
+                className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 outline-none transition-all text-sm"
               >
                 {Object.values(Difficulty).map(d => (
                   <option key={d} value={d}>{d}</option>
@@ -101,23 +101,23 @@ export const AddStepModal: React.FC<AddStepModalProps> = ({ onAdd, onClose }) =>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1">Estimated Time</label>
-              <input 
-                type="text" 
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">Estimated Time</label>
+              <input
+                type="text"
                 value={estimatedTime}
                 onChange={(e) => setEstimatedTime(e.target.value)}
                 placeholder="e.g. 30 mins"
-                className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all text-sm"
+                className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 outline-none transition-all text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500"
               />
             </div>
-            
+
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-1">Deadline (Optional)</label>
-              <input 
-                type="date" 
+              <label className="block text-sm font-semibold text-slate-700 dark:text-slate-200 mb-1">Deadline (Optional)</label>
+              <input
+                type="date"
                 value={deadline}
                 onChange={(e) => setDeadline(e.target.value)}
-                className="w-full px-3 py-2 rounded-lg border border-slate-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 outline-none transition-all text-sm"
+                className="w-full px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 text-slate-800 dark:text-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 outline-none transition-all text-sm"
               />
             </div>
           </div>
