@@ -91,9 +91,41 @@ const normalizeSubSteps = (stepId: string, subSteps: SubStep[] = []): SubStep[] 
 const normalizeSteps = (steps: ActionStep[]): ActionStep[] => {
     return steps.map((step, index) => {
         const safeId = step.id || `${generateStepId()}-${index}`;
-        const normalizedSubSteps = step.subSteps ? normalizeSubSteps(safeId, step.subSteps) : step.subSteps;
-        return { ...step, id: safeId, subSteps: normalizedSubSteps };
+        const normalizedSubSteps = step.subSteps ? normalizeSubSteps(safeId, step.subSteps) : [];
+        return {
+            ...step,
+            id: safeId,
+            subSteps: normalizedSubSteps,
+            checkIns: step.checkIns ?? [],
+            isCompleted: step.isCompleted ?? false
+        };
     });
+};
+
+const sanitizeActionStepForSave = (step: ActionStep): ActionStep => {
+    const { deadline, subSteps, checkIns, isCompleted, ...rest } = step;
+    const safeSubSteps = normalizeSubSteps(step.id, subSteps ?? []);
+
+    return {
+        ...rest,
+        id: step.id,
+        isCompleted: isCompleted ?? false,
+        checkIns: checkIns ?? [],
+        ...(deadline ? { deadline } : {}),
+        subSteps: safeSubSteps
+    };
+};
+
+const sanitizeGoalForSave = (goal: Goal): Goal => {
+    const { deadline, archived, steps, ...rest } = goal;
+    const safeSteps = steps.map(sanitizeActionStepForSave);
+
+    return {
+        ...rest,
+        steps: safeSteps,
+        ...(deadline ? { deadline } : {}),
+        ...(archived !== undefined ? { archived } : {})
+    };
 };
 
 // Helper for XP calculation
@@ -251,7 +283,8 @@ export default function App() {
         };
 
         try {
-            await addGoal(user.uid, newGoal);
+            const sanitizedGoal = sanitizeGoalForSave(newGoal);
+            await addGoal(user.uid, sanitizedGoal);
             setCurrentView('dashboard');
         } catch (e) {
             alert("Failed to save goal to cloud.");
@@ -309,10 +342,12 @@ export default function App() {
             };
 
             // Optimistic UI update
-            setGoals(prev => prev.map(g => g.id === targetGoalId ? updatedGoal : g));
+            const sanitizedGoal = sanitizeGoalForSave(updatedGoal);
+
+            setGoals(prev => prev.map(g => g.id === targetGoalId ? sanitizedGoal : g));
 
             // Cloud Save
-            await updateGoal(user.uid, updatedGoal);
+            await updateGoal(user.uid, sanitizedGoal);
         }
     };
 
@@ -337,9 +372,10 @@ export default function App() {
         });
 
         const updatedGoal = { ...goal, steps: updatedSteps };
+        const sanitizedGoal = sanitizeGoalForSave(updatedGoal);
 
-        setGoals(prev => prev.map(g => g.id === targetGoalId ? updatedGoal : g));
-        await updateGoal(user.uid, updatedGoal);
+        setGoals(prev => prev.map(g => g.id === targetGoalId ? sanitizedGoal : g));
+        await updateGoal(user.uid, sanitizedGoal);
     };
 
     const handleBreakDownStep = async (stepId: string, goalIdOverride?: string) => {
@@ -361,8 +397,9 @@ export default function App() {
             });
 
             const updatedGoal = { ...goal, steps: updatedSteps };
-            setGoals(prev => prev.map(g => g.id === targetGoalId ? updatedGoal : g));
-            await updateGoal(user.uid, updatedGoal);
+            const sanitizedGoal = sanitizeGoalForSave(updatedGoal);
+            setGoals(prev => prev.map(g => g.id === targetGoalId ? sanitizedGoal : g));
+            await updateGoal(user.uid, sanitizedGoal);
 
         } catch (e) {
             console.error(e);
@@ -383,8 +420,9 @@ export default function App() {
         );
 
         const updatedGoal = { ...goal, steps: updatedSteps };
-        setGoals(prev => prev.map(g => g.id === targetGoalId ? updatedGoal : g));
-        await updateGoal(user.uid, updatedGoal);
+        const sanitizedGoal = sanitizeGoalForSave(updatedGoal);
+        setGoals(prev => prev.map(g => g.id === targetGoalId ? sanitizedGoal : g));
+        await updateGoal(user.uid, sanitizedGoal);
     };
 
     const handleDeleteStep = async (stepId: string, goalIdOverride?: string) => {
@@ -403,8 +441,10 @@ export default function App() {
             status: determineStatus(updatedSteps)
         };
 
-        setGoals(prev => prev.map(g => g.id === targetGoalId ? updatedGoal : g));
-        await updateGoal(user.uid, updatedGoal);
+        const sanitizedGoal = sanitizeGoalForSave(updatedGoal);
+
+        setGoals(prev => prev.map(g => g.id === targetGoalId ? sanitizedGoal : g));
+        await updateGoal(user.uid, sanitizedGoal);
     };
 
     const handleApplyReview = async (response: ReviewResponse) => {
@@ -431,8 +471,10 @@ export default function App() {
             status: determineStatus(updatedSteps)
         };
 
-        setGoals(prev => prev.map(g => g.id === selectedGoalId ? updatedGoal : g));
-        await updateGoal(user.uid, updatedGoal);
+        const sanitizedGoal = sanitizeGoalForSave(updatedGoal);
+
+        setGoals(prev => prev.map(g => g.id === selectedGoalId ? sanitizedGoal : g));
+        await updateGoal(user.uid, sanitizedGoal);
 
         setIsReviewModalOpen(false);
     };
@@ -455,8 +497,10 @@ export default function App() {
                 status: determineStatus(updatedSteps)
             };
 
-            setGoals(prev => prev.map(g => g.id === selectedGoalId ? updatedGoal : g));
-            await updateGoal(user.uid, updatedGoal);
+            const sanitizedGoal = sanitizeGoalForSave(updatedGoal);
+
+            setGoals(prev => prev.map(g => g.id === selectedGoalId ? sanitizedGoal : g));
+            await updateGoal(user.uid, sanitizedGoal);
 
         } catch (e) {
             console.error(e);
@@ -490,8 +534,9 @@ export default function App() {
         };
 
         try {
-            setGoals(prev => prev.map(g => g.id === selectedGoalId ? updatedGoal : g));
-            await updateGoal(user.uid, updatedGoal);
+            const sanitizedGoal = sanitizeGoalForSave(updatedGoal);
+            setGoals(prev => prev.map(g => g.id === selectedGoalId ? sanitizedGoal : g));
+            await updateGoal(user.uid, sanitizedGoal);
         } catch (e) {
             console.error('Error adding manual step:', e);
             alert('Failed to save the new action. Please try again.');
@@ -528,9 +573,10 @@ export default function App() {
         if (!goal) return;
 
         const updatedGoal = { ...goal, archived: true };
+        const sanitizedGoal = sanitizeGoalForSave(updatedGoal);
         // Optimistic
-        setGoals(prev => prev.map(g => g.id === id ? updatedGoal : g));
-        await updateGoal(user.uid, updatedGoal);
+        setGoals(prev => prev.map(g => g.id === id ? sanitizedGoal : g));
+        await updateGoal(user.uid, sanitizedGoal);
 
         if (selectedGoalId === id) {
             setSelectedGoalId(null);
@@ -544,8 +590,9 @@ export default function App() {
         if (!goal) return;
 
         const updatedGoal = { ...goal, archived: false };
-        setGoals(prev => prev.map(g => g.id === id ? updatedGoal : g));
-        await updateGoal(user.uid, updatedGoal);
+        const sanitizedGoal = sanitizeGoalForSave(updatedGoal);
+        setGoals(prev => prev.map(g => g.id === id ? sanitizedGoal : g));
+        await updateGoal(user.uid, sanitizedGoal);
     };
 
     const handleGoalClick = (id: string) => {
@@ -580,8 +627,9 @@ export default function App() {
         steps.splice(boundedToIndex, 0, movedStep);
 
         const updatedGoal = { ...goal, steps };
-        setGoals(prev => prev.map(g => g.id === selectedGoalId ? updatedGoal : g));
-        await updateGoal(user.uid, updatedGoal);
+        const sanitizedGoal = sanitizeGoalForSave(updatedGoal);
+        setGoals(prev => prev.map(g => g.id === selectedGoalId ? sanitizedGoal : g));
+        await updateGoal(user.uid, sanitizedGoal);
     };
 
     const selectedGoal = goals.find(g => g.id === selectedGoalId);
