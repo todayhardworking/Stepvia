@@ -471,9 +471,11 @@ export default function App() {
         const goal = goals.find(g => g.id === selectedGoalId);
         if (!goal) return;
 
+        const { deadline, ...restStepData } = stepData;
         const newStep: ActionStep = {
             id: Math.random().toString(36).substring(2, 9),
-            ...stepData,
+            ...restStepData,
+            ...(deadline ? { deadline } : {}),
             isCompleted: false,
             checkIns: [],
             subSteps: []
@@ -487,8 +489,13 @@ export default function App() {
             status: determineStatus(updatedSteps)
         };
 
-        setGoals(prev => prev.map(g => g.id === selectedGoalId ? updatedGoal : g));
-        await updateGoal(user.uid, updatedGoal);
+        try {
+            setGoals(prev => prev.map(g => g.id === selectedGoalId ? updatedGoal : g));
+            await updateGoal(user.uid, updatedGoal);
+        } catch (e) {
+            console.error('Error adding manual step:', e);
+            alert('Failed to save the new action. Please try again.');
+        }
     };
 
     const handleDeleteGoal = async (e: React.MouseEvent, id: string) => {
