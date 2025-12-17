@@ -387,8 +387,11 @@ export default function App() {
         const step = goal?.steps.find(s => s.id === stepId);
         if (!goal || !step) return;
 
+        const safeStepTitle = step.title?.trim() || 'This step';
+        const safeStepDescription = step.description?.trim() || safeStepTitle;
+
         try {
-            const subSteps = await generateSubSteps(step.title, step.description, goal.title, preferences.aiPersona);
+            const subSteps = await generateSubSteps(safeStepTitle, safeStepDescription, goal.title, preferences.aiPersona);
             const normalizedSubSteps = normalizeSubSteps(stepId, subSteps);
 
             const updatedSteps = goal.steps.map(s => {
